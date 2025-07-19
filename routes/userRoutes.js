@@ -39,7 +39,7 @@ const storage = multer.diskStorage({
 router.get("/", getAllUsers);
 // router.get("/me", getUserByToken);
 router.get("/:id", getUserById);
-router.post("/", createUserValidation, validate, createUser);
+router.post("/register", createUserValidation, validate, createUser);
 router.put("/:id", createUserValidation, validate, updateUser);
 router.delete("/:id", deleteUser);
 router.post("/login", loginUserValidation, validate, loginUser);

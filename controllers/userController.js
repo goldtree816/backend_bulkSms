@@ -38,7 +38,7 @@ exports.createUser = async (req, res) => {
   console.log("token", token);
   try {
     const [result] = await db.execute(
-      "INSERT INTO users (f_name, l_name, email, password,confirmPassword,created_at) VALUES (?, ?, ?, ?,?, NOW())",
+      "INSERT INTO users (f_name, l_name, email, password,confirmPassword) VALUES (?, ?, ?, ?,?)",
       [f_name, l_name, email, password, confirmPassword]
     );
     res.status(201).json({ message: "User created", userId: result.insertId });
