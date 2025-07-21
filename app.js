@@ -6,6 +6,7 @@ const userRoutes = require("./routes/userRoutes");
 const userontact = require("./routes/userRelationRoutes");
 const twilioRoutes = require("./routes/twilioRoutes");
 const groupRoutes = require("./routes/groupRoutes");
+const subscriptionRoutes = require("./routes/subscriptionRoutes")
 const cors = require("cors");
 const db = require("./models/db");
 require("./seeders/userSeeder");
@@ -19,6 +20,7 @@ app.use("/users", userRoutes);
 app.use("/usersContact", userontact);
 app.use("/numbers", twilioRoutes )
 app.use("/groups", groupRoutes )
+app.use("/userSubscription", subscriptionRoutes)
 const port = process.env.PORT || 3000;
 app.listen(port, async () => {
   console.log(`Server running on port ${port}`);
