@@ -9,7 +9,8 @@ const createUsersTable = async () => {
         l_name VARCHAR(50) NOT NULL,
         email VARCHAR(100) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
-        confirmPassword VARCHAR(255) NOT NULL
+        confirmPassword VARCHAR(255) NOT NULL,
+        image_url VARCHAR(255) NULL
       );
     `);
     console.log("Users table created or already exists.");
@@ -17,6 +18,7 @@ const createUsersTable = async () => {
     console.error("Error creating users table:", error.message);
   }
 };
+
 
 const seedUsers = async () => {
   const users = [

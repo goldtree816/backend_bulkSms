@@ -38,9 +38,10 @@ exports.createUser = async (req, res) => {
   console.log("token", token);
   try {
     const [result] = await db.execute(
-      "INSERT INTO users (f_name, l_name, email, password,confirmPassword) VALUES (?, ?, ?, ?,?)",
-      [f_name, l_name, email, password, confirmPassword]
+      "INSERT INTO users (f_name, l_name, email, password, confirmPassword, image_url) VALUES (?, ?, ?, ?, ?, ?)",
+      [f_name, l_name, email, password, confirmPassword, null]
     );
+
     res.status(201).json({ message: "User created", userId: result.insertId });
   } catch (err) {
     res
@@ -92,7 +93,7 @@ exports.loginUser = async (req, res) => {
 
     // Check if user exists
     const [rows] = await db.execute(
-      "SELECT id, email, password FROM users WHERE email = ?",
+      "SELECT id, email, password, image_url FROM users WHERE email = ?",
       [email]
     );
     console.log("rowssss", rows);
@@ -108,7 +109,7 @@ exports.loginUser = async (req, res) => {
     const token = jwt.sign(req.body, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    res.json({ token, user: { id: user.id, email: user.email, firstname: user.f_name, lastname: user.l_name } });
+    res.json({ token, user: { id: user.id, email: user.email, firstname: user.f_name, lastname: user.l_name, image_url: user.image_url } });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -126,7 +127,9 @@ exports.imageUpload = async (req, res) => {
     }
 
     const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`;
-    const userId = req.body.user_id;
+    const userId = req.body.userId;
+
+    console.log("ther request is:", req.body)
 
     console.log("User ID:", userId);
     if (!userId) {

@@ -81,3 +81,37 @@ exports.createSubscription = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+exports.countSubscription = async (req, res) => {
+    console.log("the count subscription by user is:", req.body);
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        console.log("Missing authorization while fetching the data");
+        return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    let user;
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        user = decoded.email;
+
+        console.log("the logged in user while fetching subscription is:", user)
+    } catch (err) {
+        console.log("Token verification failed:", err.message);
+        return res.status(401).json({ message: "Error while verifying token" });
+    }
+    try {
+        const [data] = await db.execute(
+            `SELECT * FROM subscriptions WHERE createdBy = ?`,
+            [user]
+        );
+        console.log("User subscriptions:", [data]);
+        res.json({ success: true, subscriptions: [data] });
+    } catch (dbErr) {
+        console.error("Database error:", dbErr.message);
+        res.status(500).json({ message: "Database query failed" });
+    }
+
+};
