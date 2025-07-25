@@ -115,3 +115,74 @@ exports.countSubscription = async (req, res) => {
     }
 
 };
+
+exports.editSubscription = async (req, res) => {
+    console.log("Edit subscription request:", req.body);
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        console.log("Missing authorization while editing subscription");
+        return res.status(401).json({ message: "No token provided" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    let userEmail;
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userEmail = decoded.email;
+    } catch (err) {
+        console.log("Token verification failed:", err.message);
+        return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const {
+        id,        
+        plan,
+        numberOfMsgs,
+        price,
+        subscribedAt
+    } = req.body;
+
+    if (!id) {
+        return res.status(400).json({ message: "Subscription ID is required for editing" });
+    }
+
+    try {
+        const [rows] = await db.execute(
+            `SELECT * FROM subscriptions WHERE id = ? AND createdBy = ?`,
+            [id, userEmail]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Subscription not found or unauthorized" });
+        }
+
+        const subscription = rows[0];
+        const updatedPlan = plan ?? subscription.plan;
+        const updatedNumberOfMsgs = numberOfMsgs ?? subscription.numberOfMsgs;
+        const updatedPrice = price ?? subscription.price;
+        const updatedSubscribedAt = subscribedAt ? new Date(subscribedAt) : new Date(subscription.subscribedAt);
+        const updatedRemainingMsgs = updatedNumberOfMsgs - subscription.msgsSent;
+
+        await db.execute(
+            `UPDATE subscriptions
+            SET plan = ?, numberOfMsgs = ?, remainingMsgs = ?, price = ?, subscribedAt = ?
+            WHERE id = ? AND createdBy = ?`,
+            [
+                updatedPlan,
+                updatedNumberOfMsgs,
+                updatedRemainingMsgs,
+                updatedPrice,
+                updatedSubscribedAt,
+                id,
+                userEmail
+            ]
+        );
+
+        res.status(200).json({ message: "Subscription updated successfully" });
+    } catch (error) {
+        console.error("Error updating subscription:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
