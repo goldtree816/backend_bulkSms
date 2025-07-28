@@ -13,12 +13,11 @@ const createUsersTable = async () => {
         image_url VARCHAR(255) NULL
       );
     `);
-    console.log("Users table created or already exists.");
+    console.log("✅ Users table created or already exists.");
   } catch (error) {
-    console.error("Error creating users table:", error.message);
+    console.error("❌ Error creating users table:", error.message);
   }
 };
-
 
 const seedUsers = async () => {
   const users = [
@@ -39,23 +38,35 @@ const seedUsers = async () => {
   ];
 
   try {
-    await createUsersTable(); // Ensure the table exists before inserting data
+    await createUsersTable(); // Ensure table exists
 
     for (const user of users) {
-      await db.execute(
-        "INSERT INTO users (f_name, l_name, email, password,confirmPassword) VALUES (?, ?, ?, ?,?)",
-        [
-          user.f_name,
-          user.l_name,
-          user.email,
-          user.password,
-          user.confirmPassword,
-        ]
+      // Check if user already exists
+      const [existing] = await db.execute(
+        "SELECT id FROM users WHERE email = ?",
+        [user.email]
       );
+
+      if (existing.length === 0) {
+        await db.execute(
+          "INSERT INTO users (f_name, l_name, email, password, confirmPassword) VALUES (?, ?, ?, ?, ?)",
+          [
+            user.f_name,
+            user.l_name,
+            user.email,
+            user.password,
+            user.confirmPassword,
+          ]
+        );
+        console.log(`✅ Seeded user: ${user.email}`);
+      } else {
+        console.log(`⚠️ User already exists: ${user.email}`);
+      }
     }
-    console.log("Users seeded successfully!");
+
+    console.log("🎉 Users seeded successfully!");
   } catch (error) {
-    console.error("Error seeding users:", error.message);
+    console.error("❌ Error seeding users:", error.message);
   }
 };
 
