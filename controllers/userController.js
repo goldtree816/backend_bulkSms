@@ -2,7 +2,8 @@
 const db = require("../models/db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-
+const multer = require("multer");
+const path = require("path");
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
@@ -96,7 +97,7 @@ exports.loginUser = async (req, res) => {
       "SELECT id, email, password, image_url FROM users WHERE email = ?",
       [email]
     );
-    console.log("rowssss", rows);
+    console.log("rowssss>>>>", rows);
     if (rows.length === 0) {
       return res.status(400).json({ message: "Invalid  mail or password" });
     }
@@ -126,7 +127,7 @@ exports.imageUpload = async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+    const imageUrl = req.file.filename;
     const userId = req.body.userId;
 
     console.log("ther request is:", req.body)

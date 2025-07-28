@@ -7,6 +7,7 @@ const userontact = require("./routes/userRelationRoutes");
 const twilioRoutes = require("./routes/twilioRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const subscriptionRoutes = require("./routes/subscriptionRoutes")
+const path = require("path")
 const cors = require("cors");
 const db = require("./models/db");
 require("./seeders/userSeeder");
@@ -21,10 +22,8 @@ app.use("/usersContact", userontact);
 app.use("/numbers", twilioRoutes )
 app.use("/groups", groupRoutes )
 app.use("/userSubscription", subscriptionRoutes)
+app.use('/uploads', express.static(path.join(__dirname, 'routes/uploads')));
 const port = process.env.PORT || 3000;
 app.listen(port, async () => {
   console.log(`Server running on port ${port}`);
-
-  // Uncomment the line below to run the seeder only once
-  // require('./seeders/userSeeder');
 });
